@@ -1,9 +1,4 @@
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.Socket;
 import java.net.UnknownHostException;
 
 import com.ghgande.j2mod.modbus.ModbusException;
@@ -14,6 +9,7 @@ import com.ghgande.j2mod.modbus.net.TCPMasterConnection;
 
 /**
  * Allows people to read data from VR910 Modbus Server
+ * <p><a href="https://github.com/rcandell/tesim_nivis_setup">https://github.com/rcandell/tesim_nivis_setup</a>
  * @author Rushad Antia
  *
  */
@@ -44,13 +40,15 @@ public class Modbus {
 
 	}
 
-
 	/**
 	 * Returns the current of a sensor through the MODBUS Server on the VR910
+	 * 
+	 * <p>{START ADDRESS, WORD COUNT, EUI64,REGISTER TYPE,BURST MESSAGE,DEVICE VARIABLE CODE,DEVICE STATE}
+	 * 
 	 * @param startAddress - the address of the input register
 	 * @return the current of a sensor in mA (-1 if error)
 	 */
-	public float getCurrentFromInputRegister(int startAddress) {
+	public float getDataFromInputRegister(int startAddress) {
 
 		ModbusTCPTransaction transaction = new ModbusTCPTransaction(masterConnection);
 
@@ -77,12 +75,13 @@ public class Modbus {
 	}
 
 
+	/**TEST LOCATION**/
 	public static void main(String[] args) throws Exception {
 		Modbus modbus = new Modbus("192.168.0.101", DEFAULT_PORT);//.getCurrentFromInputRegister(0));
 
 		while(true) {
 			Thread.sleep(1000);
-			System.out.println(modbus.getCurrentFromInputRegister(0));
+			System.out.println(modbus.getDataFromInputRegister(3));
 		}
 
 	}
