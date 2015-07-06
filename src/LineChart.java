@@ -1,20 +1,14 @@
 import java.awt.BasicStroke;
 import java.awt.Color;
-import java.rmi.server.Skeleton;
-import java.util.Scanner;
-
-import javax.swing.JOptionPane;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.NumberTickUnit;
-import org.jfree.chart.axis.TickUnits;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYLine3DRenderer;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
-import org.jfree.data.statistics.Regression;
 import org.jfree.data.xy.XYDataItem;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
@@ -74,14 +68,16 @@ public class LineChart extends ApplicationFrame{
 
 
 		this.setContentPane(chartPanel);
-pack();
-RefineryUtilities.centerFrameOnScreen(this);
-setVisible(true);
+		pack();
+		RefineryUtilities.centerFrameOnScreen(this);
+		setVisible(true);
+		
 	}
 
+	
 
 	public static void main(String[] args) {
-	new LineChart("NIVIS Data Visualizer");
- 
+		new LineChart("NIVIS Data Visualizer");
+
 	}
 }
