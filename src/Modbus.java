@@ -26,10 +26,8 @@ public class Modbus {
 
 	public static final int DEFAULT_PORT = 502;
 
-	private boolean hasCalledSensorMap;
 	private TCPMasterConnection masterConnection;
-	private Map<String, Map<String, String>> sensorMap;
-
+	
 	/**
 	 * Creates an instance of MODBUS class
 	 * @param gatewayIP - the IP of the modbus server
@@ -50,21 +48,8 @@ public class Modbus {
 	}
 
 	/**
-	 * Allows you to set the sensor map.
-	 * <p>FORMAT: Map< EUI-64, Map< device_variable_name,start_address >>
-	 * <p> device_variable_name = { Current, Temp, Humidity, DewPoint, etc... } Can be found in the MCS in the Readings tab under Name
-	 * @param map - the map of the sensors used
-	 */
-	public void setSensorMap(Map<String, Map<String, String>> map) {
-		sensorMap = map;
-		hasCalledSensorMap = true;
-	}
-
- 
-
-	/**
 	 * Returns the current of a sensor through the MODBUS Server on the VR910
-	 * <p> The device state must be a 2
+	 * <p> The device state must be a 2 otherwise it will not work 
 	 * 
 	 * <p>{START ADDRESS, WORD COUNT, EUI64,REGISTER TYPE,BURST MESSAGE,DEVICE VARIABLE CODE,DEVICE STATE}<p>
 	 * 
@@ -90,7 +75,7 @@ public class Modbus {
 
 			return Utils.hexToFloat(currentString);
 
-		} catch (ModbusException e) {
+		} catch (ModbusException|IndexOutOfBoundsException e) {
 			e.printStackTrace();
 		}
 
@@ -102,6 +87,6 @@ public class Modbus {
 	/**TEST LOCATION**/
 	public static void main(String[] args) throws Exception {
 		Modbus modbus = new Modbus("192.168.0.101", DEFAULT_PORT);
- System.out.println(modbus.getDataFromInputRegister(0));
+ System.out.println(modbus.getDataFromInputRegister(3));
 	}
 }
