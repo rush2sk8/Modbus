@@ -1,12 +1,5 @@
-import java.io.File;
- 
-import java.io.FileNotFoundException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Scanner;
 
 import com.ghgande.j2mod.modbus.ModbusException;
 import com.ghgande.j2mod.modbus.io.ModbusTCPTransaction;
@@ -27,7 +20,7 @@ public class Modbus {
 	public static final int DEFAULT_PORT = 502;
 
 	private TCPMasterConnection masterConnection;
-	
+
 	/**
 	 * Creates an instance of MODBUS class
 	 * @param gatewayIP - the IP of the modbus server
@@ -82,11 +75,11 @@ public class Modbus {
 		return -1;
 	}
 
- 
+
 
 	/**TEST LOCATION**/
 	public static void main(String[] args) throws Exception {
 		Modbus modbus = new Modbus("192.168.0.101", DEFAULT_PORT);
- System.out.println(modbus.getDataFromInputRegister(3));
+		System.out.println(modbus.getDataFromInputRegister(3));
 	}
 }
