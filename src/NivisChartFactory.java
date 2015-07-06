@@ -36,7 +36,7 @@ public class NivisChartFactory {
 		//sets the range of the graph 
 		NumberAxis rangeAxis = (NumberAxis)plot.getRangeAxis();
 
-		rangeAxis.setTickUnit(new NumberTickUnit(1));
+		rangeAxis.setTickUnit(new NumberTickUnit(.1));
 		rangeAxis.setRange(20,21);
 
 		((NumberAxis)plot.getDomainAxis()).setTickUnit(new NumberTickUnit(5));
