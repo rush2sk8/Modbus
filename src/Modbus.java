@@ -80,6 +80,15 @@ public class Modbus {
 	/**TEST LOCATION**/
 	public static void main(String[] args) throws Exception {
 		Modbus modbus = new Modbus("192.168.0.101", DEFAULT_PORT);
-		System.out.println(modbus.getDataFromInputRegister(3));
+
+		System.out.println("00-1B-1E-F8-76-02-22-DD Current: "+ modbus.getDataFromInputRegister(0));
+		System.out.println("00-1B-1E-F8-76-02-22-DD Temp: "+ modbus.getDataFromInputRegister(3));
+		System.out.println("00-1B-1E-F8-76-02-22-DD Humidity: "+ modbus.getDataFromInputRegister(6));
+		System.out.println("00-1B-1E-F8-76-02-22-DD DewPoint: "+ modbus.getDataFromInputRegister(9));
+		
+		System.out.println("00-1B-1E-F8-76-02-22-DF Current: "+ modbus.getDataFromInputRegister(12));
+		System.out.println("00-1B-1E-F8-76-02-22-DF Temp: "+ modbus.getDataFromInputRegister(15));
+		System.out.println("00-1B-1E-F8-76-02-22-DF Humidity: "+ modbus.getDataFromInputRegister(18));
+		System.out.println("00-1B-1E-F8-76-02-22-DF DewPoint: "+ modbus.getDataFromInputRegister(21));
 	}
 }
