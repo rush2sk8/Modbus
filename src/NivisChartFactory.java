@@ -36,8 +36,7 @@ public class NivisChartFactory {
 		//sets the range of the graph 
 		NumberAxis rangeAxis = (NumberAxis)plot.getRangeAxis();
 
-		rangeAxis.setTickUnit(new NumberTickUnit(.1));
-		rangeAxis.setRange(20,21);
+		rangeAxis.setTickUnit(new NumberTickUnit(.5));
 
 		((NumberAxis)plot.getDomainAxis()).setTickUnit(new NumberTickUnit(5));
 
@@ -53,19 +52,6 @@ public class NivisChartFactory {
 		JLabel eui = new JLabel("EUI 64: "+(String) series.getKey());		
 		eui.setBackground(Color.green);
 		chartPanel.add(eui);
-
-		JButton button = new JButton("Go Back");
-		button.setBackground(Color.GRAY);
-		button.setMnemonic(KeyEvent.VK_BACK_SPACE);
-		button.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				chartPanel.setVisible(false);
-
-			}
-		});
-		chartPanel.add(button);
 
 		return chartPanel;
 
