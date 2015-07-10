@@ -86,6 +86,6 @@ public class MainInterface extends ApplicationFrame {
 
 	}
 	public static void main(String... args) {
-		new MainInterface("192.168.0.101");
+		new MainInterface("192.168.1.101");
 	}
 }
