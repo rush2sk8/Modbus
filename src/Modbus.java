@@ -1,10 +1,17 @@
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.InetAddress;
+import java.net.Socket;
 import java.net.UnknownHostException;
 
 import com.ghgande.j2mod.modbus.ModbusException;
 import com.ghgande.j2mod.modbus.io.ModbusTCPTransaction;
 import com.ghgande.j2mod.modbus.msg.ReadInputRegistersRequest;
 import com.ghgande.j2mod.modbus.msg.ReadInputRegistersResponse;
+import com.ghgande.j2mod.modbus.msg.ReadMultipleRegistersRequest;
+import com.ghgande.j2mod.modbus.msg.ReadMultipleRegistersResponse;
 import com.ghgande.j2mod.modbus.net.TCPMasterConnection;
 
 /**
@@ -56,9 +63,44 @@ public class Modbus {
 		try {
 			transaction.setRequest(new ReadInputRegistersRequest(startAddress, 3));
 			transaction.setReconnecting(true);
+		 
 			transaction.execute();
-
+ 
 			ReadInputRegistersResponse response = (ReadInputRegistersResponse)transaction.getResponse();
+			String[] payload = response.getHexMessage().split(" ");
+
+			String currentString = "";
+
+			for(int i=11;i<=14;i++)
+				currentString+=payload[i];
+
+			return Utils.hexToFloat(currentString);
+
+		} catch (ModbusException|IndexOutOfBoundsException e) {
+			e.printStackTrace();
+		}
+
+		return -1;
+	}
+	/**
+	 * Returns the current of a sensor through the MODBUS Server on the VR910
+	 * <p> The device state must be a 2 otherwise it will not work 
+	 * 
+	 * <p>{START ADDRESS, WORD COUNT, EUI64,REGISTER TYPE,BURST MESSAGE,DEVICE VARIABLE CODE,DEVICE STATE}<p>
+	 * 
+	 * @param startAddress - the address of the holding register
+	 * @return the current of a sensor in mA (-1 if error)
+	 */
+	public float getDataFromHoldingRegister(int startAddress) {
+
+		ModbusTCPTransaction transaction = new ModbusTCPTransaction(masterConnection);
+
+		try {
+			transaction.setRequest(new ReadMultipleRegistersRequest(startAddress, 3));
+			transaction.setReconnecting(true);
+			transaction.execute();
+ 
+			ReadMultipleRegistersResponse response = (ReadMultipleRegistersResponse)transaction.getResponse();
 			String[] payload = response.getHexMessage().split(" ");
 
 			String currentString = "";
@@ -76,10 +118,9 @@ public class Modbus {
 	}
 
 
-
 	/**TEST LOCATION**/
 	public static void main(String[] args) throws Exception {
-		Modbus modbus = new Modbus("192.168.1.101", 502);
+		//Modbus modbus = new Modbus("192.168.1.101", 502);
 	/*	System.out.println("00-1B-1E-F8-76-02-22-DD Current: "+ modbus .getDataFromInputRegister(0));
 		System.out.println("00-1B-1E-F8-76-02-22-DD Temp: "+ modbus.getDataFromInputRegister(3));
 		System.out.println("00-1B-1E-F8-76-02-22-DD Humidity: "+ modbus.getDataFromInputRegister(6));
@@ -89,6 +130,36 @@ public class Modbus {
 		System.out.println("00-1B-1E-F8-76-02-22-DF Temp: "+ modbus.getDataFromInputRegister(15));
 		System.out.println("00-1B-1E-F8-76-02-22-DF Humidity: "+ modbus.getDataFromInputRegister(18));
 		System.out.println("00-1B-1E-F8-76-02-22-DF DewPoint: "+ modbus.getDataFromInputRegister(21));*/
-		System.out.println(modbus.getDataFromInputRegister(24));
+		//System.out.println(modbus.getDataFromInputRegister(0));
+	
+		Socket socket = new Socket("192.168.1.101",502);
+		System.out.println("Connected:"+socket.isConnected());
+		
+		//reader
+		new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				try {
+					BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+					String data;
+					System.out.println("reading data");
+					while((data = in.readLine())!=null) {
+						System.out.println(data);
+					}
+					
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+			}
+		}).start();
+	
+		PrintWriter out = new PrintWriter(socket.getOutputStream());
+
+			out.print("010400020064");
+			out.flush();
+		
 	}
 }
