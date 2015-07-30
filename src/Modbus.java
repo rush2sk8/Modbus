@@ -1,10 +1,6 @@
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.net.InetAddress;
-import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.ghgande.j2mod.modbus.ModbusException;
 import com.ghgande.j2mod.modbus.io.ModbusTCPTransaction;
@@ -25,6 +21,8 @@ import com.ghgande.j2mod.modbus.net.TCPMasterConnection;
 public class Modbus {
 
 	public static final int DEFAULT_PORT = 502;
+
+	private static  AtomicBoolean GO = new AtomicBoolean(true);
 
 	private TCPMasterConnection masterConnection;
 
@@ -56,16 +54,16 @@ public class Modbus {
 	 * @param startAddress - the address of the input register
 	 * @return the current of a sensor in mA (-1 if error)
 	 */
-	public float getDataFromInputRegister(int startAddress) {
+	public synchronized float getDataFromInputRegister(int startAddress) {
 
 		ModbusTCPTransaction transaction = new ModbusTCPTransaction(masterConnection);
 
 		try {
 			transaction.setRequest(new ReadInputRegistersRequest(startAddress, 3));
 			transaction.setReconnecting(true);
-		 
+
 			transaction.execute();
- 
+
 			ReadInputRegistersResponse response = (ReadInputRegistersResponse)transaction.getResponse();
 			String[] payload = response.getHexMessage().split(" ");
 
@@ -99,7 +97,7 @@ public class Modbus {
 			transaction.setRequest(new ReadMultipleRegistersRequest(startAddress, 3));
 			transaction.setReconnecting(true);
 			transaction.execute();
- 
+
 			ReadMultipleRegistersResponse response = (ReadMultipleRegistersResponse)transaction.getResponse();
 			String[] payload = response.getHexMessage().split(" ");
 
@@ -117,49 +115,46 @@ public class Modbus {
 		return -1;
 	}
 
+	private void findPollTime(int startaddress) {
+		float prev = 0;
+		//	System.out.println("00-1B-1E-F8-76-02-22-DD DewPoint: "+ modbus.getDataFromInputRegister(9));
+		long start = System.currentTimeMillis();
+		while(GO.get()) {
+			float newf = getDataFromInputRegister(startaddress);
+			if(newf!=prev) {
+				prev = newf;
+				System.out.println("Address: "+startaddress+ " Data: "+newf+ " Time Taken: " + (System.currentTimeMillis()-start)/1000.0);
+				start=System.currentTimeMillis();
+			}
+			continue;
+		}
+	}
+
+	public void startFindingPollTimes(int[] addresses) {
+		GO = new AtomicBoolean(true);
+		for(int i : addresses) {
+			new Thread(new Runnable() {
+				public void run() {
+					findPollTime(i);
+				}
+			}).start();
+		}
+
+	}
+
+	public void terminatePolling() {
+		GO = new AtomicBoolean(false);
+	}
 
 	/**TEST LOCATION**/
 	public static void main(String[] args) throws Exception {
-		//Modbus modbus = new Modbus("192.168.1.101", 502);
-	/*	System.out.println("00-1B-1E-F8-76-02-22-DD Current: "+ modbus .getDataFromInputRegister(0));
-		System.out.println("00-1B-1E-F8-76-02-22-DD Temp: "+ modbus.getDataFromInputRegister(3));
-		System.out.println("00-1B-1E-F8-76-02-22-DD Humidity: "+ modbus.getDataFromInputRegister(6));
-		System.out.println("00-1B-1E-F8-76-02-22-DD DewPoint: "+ modbus.getDataFromInputRegister(9));
-		
-		System.out.println("00-1B-1E-F8-76-02-22-DF Current: "+ modbus.getDataFromInputRegister(12));
-		System.out.println("00-1B-1E-F8-76-02-22-DF Temp: "+ modbus.getDataFromInputRegister(15));
-		System.out.println("00-1B-1E-F8-76-02-22-DF Humidity: "+ modbus.getDataFromInputRegister(18));
-		System.out.println("00-1B-1E-F8-76-02-22-DF DewPoint: "+ modbus.getDataFromInputRegister(21));*/
-		//System.out.println(modbus.getDataFromInputRegister(0));
-	
-		Socket socket = new Socket("192.168.1.101",502);
-		System.out.println("Connected:"+socket.isConnected());
-		
-		//reader
-		new Thread(new Runnable() {
-			
-			@Override
-			public void run() {
-				try {
-					BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-					String data;
-					System.out.println("reading data");
-					while((data = in.readLine())!=null) {
-						System.out.println(data);
-					}
-					
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				
-			}
-		}).start();
-	
-		PrintWriter out = new PrintWriter(socket.getOutputStream());
+		Modbus modbus = new Modbus("192.168.1.101", 502);
 
-			out.print("010400020064");
-			out.flush();
-		
+		modbus.startFindingPollTimes(new int[]{0,12});
+		Thread.sleep(20*1000);
+		System.out.println("woke up");
+
+		modbus.terminatePolling();
+		System.out.println("terminated");
 	}
 }

@@ -13,7 +13,7 @@ public class MODBUSRegisterGenerator {
 		if(!file.exists()) { 
 			JOptionPane.showMessageDialog(null, "Please put me in the same directory as the Monitor_Host_Publishers.conf file");
 			System.exit(-1);
-		}else if (JOptionPane.showConfirmDialog(null, "Click OK to generate the register file.\nMake sure I am in the same directory as the Monitor_Host_Publishers.conf file\n Made by Rushad Antia ")!=JOptionPane.OK_OPTION) {
+		}else if (JOptionPane.showConfirmDialog(null, "Click Yes to generate the register file.\nMake sure I am in the same directory as the Monitor_Host_Publishers.conf file")!=JOptionPane.OK_OPTION) {
 			System.exit(-1);
 		}
 
