@@ -115,14 +115,13 @@ public class Modbus {
 		return -1;
 	}
 
-	/**
-	 * polls the addresses in the array forever until terminate is called
-	 * @param startaddress
-	 */
-	private synchronized void findPollTime(int startaddress) {
+
+	private void findPollTime(int startaddress) {
 		float prev = 0;
-		//	System.out.println("00-1B-1E-F8-76-02-22-DD DewPoint: "+ modbus.getDataFromInputRegister(9));
+	
+		
 		long start = System.currentTimeMillis();
+		
 		while(GO.get()) {
 			float newf = getDataFromInputRegister(startaddress);
 			if(newf!=prev) {
@@ -133,8 +132,13 @@ public class Modbus {
 			continue;
 		}
 	}
-
-	public void startFindingPollTimes(int[] addresses) {
+	
+	/**
+	 * polls the addresses in the array forever until terminate is called
+	 * called on a thread so it returns
+	 * @param startaddress
+	 */
+	public void startFindingPollTimes(int... addresses) {
 		GO = new AtomicBoolean(true);
 		for(int i : addresses) {
 			new Thread(new Runnable() {
@@ -160,13 +164,8 @@ public class Modbus {
 	public static void main(String[] args) throws Exception {
 		Modbus modbus = new Modbus("192.168.1.101", 502);
 
-		modbus.startFindingPollTimes(new int[]{0,12});
-		System.out.println("sleep");
-		Thread.sleep(50*1000);
-		System.out.println("woke up");
+		modbus.startFindingPollTimes(new int[]{0});
 
-		modbus.terminatePolling();
-		modbus.terminatePolling();
-		System.out.println("terminated");
+
 	}
 }
